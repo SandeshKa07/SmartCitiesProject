@@ -85,6 +85,9 @@ grovepi.digitalWrite(indicator_led, 0)
 # Placeholders for all the sensors.
 temperature_humidity_sensor_data = {'temperature': 0, 'humidity': 0, '':0,}
 
+# Threshold for light sensor
+threshold_light_sensor = 10
+
 
 
 ''' Data Packet containing all the sensor information to be transmitted to 
@@ -131,13 +134,25 @@ def process_event(event):
             print('Do command', command, 'with params', str(params))
             if command == "action.devices.commands.OnOff":
                 if params['on']:
-                    print('Turning the LED on.')
-                    grovepi.digitalWrite(indicator_led,1)
+                    print('Turning LIGHT on.')
+                    plugwise_Circle_2.switch_on()
+                    grovepi.digitalWrite(indicator_led,1) # temporary as of now, delete when we have plugwise
 
                 else:
-                    print('Turning the LED off.')
-                    grovepi.digitalWrite(indicator_led,0)
+                    print('Turning LIGHT off.')
+                    plugwise_Circle_2.switch_off()
+                    grovepi.digitalWrite(indicator_led,0) # temporary as of now, delete when we have plugwise
 
+            if command == "action.devices.commands.StartStop":
+                if params['start']:
+                    print('Turning HEATER on.')
+                    plugwise_Circle_1.switch_on()
+                    grovepi.digitalWrite(indicator_led, 1)  # temporary as of now, delete when we have plugwise
+
+                else:
+                    print('Turning HEATER off.')
+                    plugwise_Circle_1.switch_off()
+                    grovepi.digitalWrite(indicator_led, 0)  # temporary as of now, delete when we have plugwis
 
 
 def main():
