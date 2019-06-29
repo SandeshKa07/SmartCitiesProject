@@ -9,6 +9,7 @@ import grovepi
 import sys
 import os
 import time
+import ast
 
 # Import MQTT client modules
 import paho.mqtt.client as mqtt
@@ -66,7 +67,20 @@ def on_connect(mosq, obj, rc):
 def on_message(mosq, obj, msg):
     global light_status
     global heater_status
-    print("Temperature at home = " + str(msg.payload))
+    message_from_broker = str(msg.payload.decode("utf-8"))
+    print("Payload = ",message_from_broker,"topic=", msg.topic, "type of topic is =" , type(msg.topic))
+
+    if "/heater" in msg.topic:
+        print("Heater status from MQTT broker")
+        heater_status = ast.literal_eval(message_from_broker)
+
+    if "/light" in msg.topic:
+        print("Light status from MQTT broker")
+        light_status = ast.literal_eval(message_from_broker)
+
+
+    print("Light_Status  = ",light_status,)
+    print("Heater_Status = ",heater_status,)
 
 def on_publish(mosq, obj, mid):
     #print("mid: " + str(mid))
@@ -96,8 +110,8 @@ client.username_pw_set("ndcvwock", "yotAE_3zRCsF")
 client.connect('m24.cloudmqtt.com', 10480, 60)
 
 client.loop_start()
-client.subscribe ("/frommothership" ,0 )
-client.subscribe ("/temperature",0)
+client.subscribe ("/light",0)
+client.subscribe ("/heater",0)
 
 
 def sense_and_actuate():
@@ -105,6 +119,8 @@ def sense_and_actuate():
     ## Sensing ultrasound and sound sensors.
     sensed_ultra_sound_value = 0
     sensed_sound_value = 0
+    global light_status
+    global heater_status
     while True:
         try:
             for x in range(0, 9):
@@ -129,7 +145,7 @@ def sense_and_actuate():
 
             setRGB(0,128,64)
             setRGB(0,255,0)
-            setText("HomeLight: " + str(light_status) + "HomeHeater: " + str(heater_status))
+            setText("Light : " + str(light_status) + "   Heater: " + str(heater_status))
 
         except KeyboardInterrupt:
             print("Keyboard Interrupted\n")
