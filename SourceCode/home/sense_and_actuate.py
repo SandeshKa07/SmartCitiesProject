@@ -15,7 +15,7 @@ import socket
 import http.client
 
 # Import MQTT client modules
-#import paho.mqtt.client as mqtt
+import paho.mqtt.client as mqtt
 
 # Import Plugwise modules for both stick and circle
 from plugwise import Stick
@@ -58,6 +58,29 @@ mac2 = "000D6F0003562BE1"
 # Start the communication loop
 #client.loop_start()
 
+
+################################################################################
+# Cloud MQTT Client Publish
+
+def on_connect(mosq, obj, rc):
+    print ("on_connect:: Connected with result code "+ str ( rc ) )
+    print("rc: " + str(rc))
+    print("" )
+
+def on_publish(mosq, obj, mid):
+    print("Published Status to MQTT Cloud : " + str(mid))
+
+cloudmqttclient = mqtt.Client()
+
+# Assign event callbacks
+cloudmqttclient.on_connect = on_connect
+cloudmqttclient.on_publish = on_publish
+
+cloudmqttclient.username_pw_set("ndcvwock", "yotAE_3zRCsF")
+cloudmqttclient.connect('m24.cloudmqtt.com', 10480, 60)
+
+cloudmqttclient.loop_start()
+################################################################################
 
 # Sensor Pin configuration
 # Analog Port Declaration for the Sensors
@@ -109,6 +132,7 @@ def listen_assistant(socket_client_obj):
             print("                                         ")
         except KeyboardInterrupt:
             print("Keyboard Interrupted\n")
+            sys.exit(1)
 
 
 def sense_and_actuate(socket_client_obj):
@@ -171,7 +195,9 @@ def sense_and_actuate(socket_client_obj):
             
             time.sleep(5)
             # client.publish('v1/devices/me/telemetry', json.dumps(temperature_humidity_sensor_data), 1)
-            
+            cloudmqttclient.publish( "/light", light_status)
+            cloudmqttclient.publish( "/heater", heater_status)
+
             # next_reading += INTERVAL
             # sleep_time = next_reading - time.time()
             # if sleep_time > 0:
@@ -179,6 +205,7 @@ def sense_and_actuate(socket_client_obj):
         except KeyboardInterrupt:
             print("Keyboard Interrupted\n")
             socket_client_obj.close()
+            sys.exit(1)
 
 def main():
         socket_client_obj = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
