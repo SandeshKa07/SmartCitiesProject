@@ -1,0 +1,11 @@
+
+ff: parsing domain file
+domain 'OFFICE' defined
+ ... done.
+ff: parsing problem file
+problem 'SMART-OFFICE' defined
+ ... done.
+
+
+ff: goal can be simplified to FALSE. No plan will solve it
+
